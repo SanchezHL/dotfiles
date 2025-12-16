@@ -109,6 +109,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 		vim.highlight.on_yank()
 	end,
 })
+
 -- Al dividir ventanas, seleccionar automáticamente la nueva ventana
 vim.api.nvim_create_autocmd({"VimEnter", "WinNew"}, {
     callback = function()
@@ -117,3 +118,4 @@ vim.api.nvim_create_autocmd({"VimEnter", "WinNew"}, {
     end
 })
 
+vim.cmd [[colorscheme desert]]
