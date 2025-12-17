@@ -152,6 +152,11 @@ require("lazy").setup({
     },
   },
   -- ... aqui puedes añadir mas plugins
+  {
+  'nvim-treesitter/nvim-treesitter',
+  lazy = false,
+  build = ':TSUpdate'
+  },
 })
 
 -- [[ LSP Setup ]]
@@ -257,4 +262,17 @@ cmp.setup({
     }, {
         { name = 'buffer' },
     })
+})
+
+-- [[Treesitter]]
+require'nvim-treesitter'.setup {
+  -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
+  install_dir = vim.fn.stdpath('data') .. '/site'
+}
+
+require'nvim-treesitter'.install { 'python', 'c', 'zig' }
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { '*.py' },
+  callback = function() vim.treesitter.start() end,
 })
