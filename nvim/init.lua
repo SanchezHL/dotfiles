@@ -157,6 +157,33 @@ require("lazy").setup({
   lazy = false,
   build = ':TSUpdate'
   },
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy",
+    config = function()
+        require('tiny-inline-diagnostic').setup({
+            -- Esta es la opción que buscas:
+            options = {
+                show_all_diagonstics = true, -- Muestra todos los errores del archivo siempre
+                show_source = true, -- Muestra si el error es de clangd, lua_ls, etc.
+                multiple_diag_under_cursor = true,
+                multilines = true, -- Permite que mensajes largos se dividan en varias líneas
+            }
+        })
+        -- Desactivamos el virtual_text nativo para que no se dupliquen los mensajes
+        vim.diagnostic.config({ virtual_text = false })
+    end
+  },
+  {
+    "folke/lazydev.nvim",
+    ft = "lua", -- solo se carga en archivos lua
+    opts = {
+      library = {
+        -- Carga los tipos de la API de Neovim
+        { path = "luvit-meta/library", words = { "vim%.uv" } },
+      },
+    },
+  },
 })
 
 -- [[ LSP Setup ]]
@@ -195,28 +222,6 @@ require("mason-lspconfig").setup({
             lspconfig[server_name].setup({
                 on_attach = on_attach,
                 -- Otras opciones por defecto, si las hay
-            })
-        end,
-
-        -- Configuración ESPECÍFICA para clangd
-        -- Esto soluciona tu problema con zig cc
-        clangd = function ()
-            lspconfig.clangd.setup({
-                on_attach = on_attach,
-                -- Argumentos cruciales para usar zig cc como driver de compilación
-                cmd = {
-                    "clangd",
-                    -- Usa el compilador de Zig para determinar las rutas de la librería estándar.
-					"--query-driver=C:/Users/dsanc/AppData/Local/Microsoft/WinGet/Links/zig.exe",
-                },
-                settings = {
-                    clangd = {
-                        arguments = {
-                            "--compile-commands-dir=.", -- Útil si alguna vez usas un build system
-                            "--header-insertion=iwithsys",
-                        },
-                    },
-                },
             })
         end,
     }
@@ -293,7 +298,7 @@ require'nvim-treesitter'.setup {
   install_dir = vim.fn.stdpath('data') .. '/site'
 }
 
-require'nvim-treesitter'.install { 'python', 'c', 'zig' }
+require'nvim-treesitter'.install { 'python', 'c' }
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { '*.py' },
@@ -306,7 +311,6 @@ vim.diagnostic.config({
     virtual_text = {
         prefix = '●', -- Carácter que aparece antes del error
         spacing = 4,
-
     },
     update_in_insert = false, -- No mostrar errores mientras escribes (evita distracciones)
     underline = true,         -- Mantener el subrayado rojo
@@ -323,7 +327,7 @@ vim.diagnostic.config({
 
 -- Mostrar el error completo en una ventana flotante (útil si el mensaje es largo)
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Mostrar mensaje de error" })
-
 -- Saltar entre errores TODO:CAMBIAR KEYMAPS y filtrar entre mensajes de diagnosico
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Ir al error anterior" })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Ir al siguiente error" })
+
