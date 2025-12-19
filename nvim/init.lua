@@ -227,6 +227,29 @@ local cmp = require('cmp')
 local luasnip = require('luasnip')
 
 cmp.setup({
+
+	enabled = function()
+      -- Desactivar autocompletado si el cursor está en un comentario
+      local context = require('cmp.config.context')
+
+      -- Mantener autocompletado en el modo comando (search, etc.)
+      if vim.api.nvim_get_mode().mode == 'c' then
+        return true
+      else
+		  -- Detectar si estamos en un comentario
+        local is_comment = context.in_treesitter_capture("comment")
+            or context.in_syntax_group("Comment")
+
+        -- Detectar si estamos en un String (probamos varias etiquetas comunes)
+        local is_string = context.in_treesitter_capture("string")
+            or context.in_syntax_group("String")
+            or context.in_syntax_group("Constant") -- A veces los strings caen aquí en sintaxis simple
+
+        -- Solo habilitar si NO es comentario y NO es string
+        return not is_comment and not is_string
+      end
+    end,
+
     snippet = {
         expand = function(args)
             luasnip.lsp_expand(args.body) -- For luasnip users.
@@ -276,3 +299,31 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = { '*.py' },
   callback = function() vim.treesitter.start() end,
 })
+
+
+-- [[ Configuración de Diagnósticos ]]
+vim.diagnostic.config({
+    virtual_text = {
+        prefix = '●', -- Carácter que aparece antes del error
+        spacing = 4,
+
+    },
+    update_in_insert = false, -- No mostrar errores mientras escribes (evita distracciones)
+    underline = true,         -- Mantener el subrayado rojo
+    severity_sort = true,     -- Ordenar por gravedad (Error > Warning)
+    float = {
+        focused = false,
+        style = "minimal",
+        border = "rounded",
+        source = "always",    -- Muestra si el error viene de Pyright, Clangd, etc.
+        header = "",
+        prefix = "",
+    },
+})
+
+-- Mostrar el error completo en una ventana flotante (útil si el mensaje es largo)
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Mostrar mensaje de error" })
+
+-- Saltar entre errores TODO:CAMBIAR KEYMAPS y filtrar entre mensajes de diagnosico
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Ir al error anterior" })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Ir al siguiente error" })
