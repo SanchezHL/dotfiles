@@ -237,6 +237,7 @@ require("mason-lspconfig").setup({
         "html",
         "cssls",
         "ts_ls",
+		"jinja_lsp",
     },
     -- Esta sección maneja la configuración de cada LSP
     handlers = {
