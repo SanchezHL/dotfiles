@@ -65,10 +65,19 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 15
 
+-- Configuracion especifica de windows
+if vim.fn.has("win32") == 1 then
+    vim.opt.shell = "powershell.exe"
+    vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    vim.opt.shellquote = ""
+    vim.opt.shellxquote = ""
+end
+
+vim.opt.hlsearch = true
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
-vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -151,11 +160,27 @@ require("lazy").setup({
       "L3MON4D3/LuaSnip",
     },
   },
-  -- ... aqui puedes añadir mas plugins
   {
   'nvim-treesitter/nvim-treesitter',
-  lazy = false,
-  build = ':TSUpdate'
+  build = ':TSUpdate',
+  config = function()
+    require('nvim-treesitter').setup({
+      -- Lista de lenguajes que quieres instalados siempre
+      ensure_installed = { "python", "c", "lua", "vim", "vimdoc", "query", "javascript", "typescript" },
+      -- Instalación sincrónica (falso para que no bloquee el inicio)
+      sync_install = true,
+      -- Auto-instalación de lenguajes cuando abres un archivo nuevo
+      auto_install = true,
+
+      highlight = {
+        enable = true,
+        additional_vim_regex_highlighting = false,
+      },
+      indent = {
+        enable = true -- También activa la indentación inteligente
+      },
+    })
+  end
   },
   {
     "rachartier/tiny-inline-diagnostic.nvim",
@@ -187,7 +212,6 @@ require("lazy").setup({
 })
 
 -- [[ LSP Setup ]]
-
 -- Función de configuración que se ejecuta cuando el LSP se adjunta a un buffer.
 -- Es un buen lugar para configurar mapeos de teclas específicos del LSP.
 local on_attach = function(client, bufnr)
@@ -197,7 +221,6 @@ local on_attach = function(client, bufnr)
     -- Mapeo para ver la documentación (hover):
     -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = bufnr, desc = "LSP Hover Documentation" })
 end
-
 
 -- 1. Mason: Gestiona la instalación de servidores LSP
 require("mason").setup()
@@ -291,20 +314,6 @@ cmp.setup({
         { name = 'buffer' },
     })
 })
-
--- [[Treesitter]]
-require'nvim-treesitter'.setup {
-  -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-  install_dir = vim.fn.stdpath('data') .. '/site'
-}
-
-require'nvim-treesitter'.install { 'python', 'c' }
-
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = { '*.py' },
-  callback = function() vim.treesitter.start() end,
-})
-
 
 -- [[ Configuración de Diagnósticos ]]
 vim.diagnostic.config({
