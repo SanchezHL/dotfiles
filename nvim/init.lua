@@ -149,11 +149,23 @@ require("lazy").setup({
       "L3MON4D3/LuaSnip",
     },
   },
-  -- ... aqui puedes añadir mas plugins
   {
-  'nvim-treesitter/nvim-treesitter',
-  lazy = false,
-  build = ':TSUpdate'
+    'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
+    config = function()
+      -- Obligamos a usar zig antes de cualquier otra cosa
+      -- local install = require('nvim-treesitter.install')
+      -- install.compilers = { "zig" }
+      -- install.prefer_git = false
+
+      require('nvim-treesitter.configs').setup({
+        ensure_installed = { "python", "c", "lua", "vim", "vimdoc", "query" },
+        auto_install = true,
+        highlight = {
+          enable = true,
+        },
+      })
+    end
   },
   {
     "rachartier/tiny-inline-diagnostic.nvim",
@@ -314,13 +326,7 @@ cmp.setup({
     })
 })
 
--- [[Treesitter]]
-require'nvim-treesitter'.setup {
-  -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-  install_dir = vim.fn.stdpath('data') .. '/site'
-}
-
-require'nvim-treesitter'.install { 'python', 'c' }
+-- require'nvim-treesitter'.install { 'python', 'c' }
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { '*.py' },
@@ -353,3 +359,5 @@ vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Mostrar me
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Ir al error anterior" })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Ir al siguiente error" })
 
+-- Set Neovim Theme
+vim.cmd.colorscheme("slate")
