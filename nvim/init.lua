@@ -184,6 +184,7 @@ require("lazy").setup({
       },
     },
   },
+  { "xiyaowong/transparent.nvim" },
 })
 
 -- [[ LSP Setup ]]
