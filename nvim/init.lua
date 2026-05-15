@@ -99,8 +99,6 @@ vim.keymap.set("n", "<leader>p", '<cmd>:bp<CR>')
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
--- Set Neovim Theme
-vim.cmd.colorscheme("slate")
 
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
